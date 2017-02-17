@@ -1,0 +1,33 @@
+
+ 
+ public string AD_LookUp(string adNum)
+        {
+            string Effectivedate = "";
+            string url = String.Format("http://services.faa.gov/document/ad/{0}?format=application/xml", adNum);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.Method = "GET";
+            request.ContentType = "text/xml;charset=\"utf-8\"";
+            request.Accept = "text/xml, multipart/related, text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2";
+            request.UserAgent = "JAX-WS RI 2.1.6 in JDK 6";
+            request.KeepAlive = true;
+            try
+            {
+                HttpWebResponse resp = (HttpWebResponse)request.GetResponse();
+                if (resp.StatusCode == HttpStatusCode.OK)
+                {
+
+                    StreamReader sr = new StreamReader(resp.GetResponseStream());
+                    string respData = sr.ReadToEnd();
+                    sr.Close();
+                    XmlDocument responseXML = new XmlDocument();
+                    responseXML.LoadXml(respData);
+                    Effectivedate = responseXML.DocumentElement.SelectSingleNode("//Effectivedate").InnerText;
+
+                }
+            }
+            catch(Exception e)
+            {
+
+            }
+            return Effectivedate;
+        }
